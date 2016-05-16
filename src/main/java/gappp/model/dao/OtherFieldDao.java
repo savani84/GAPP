@@ -1,0 +1,21 @@
+package gappp.model.dao;
+
+import java.util.List;
+
+import gappp.model.OtherField;
+
+public interface OtherFieldDao {
+    
+    List<OtherField> getOtherField();
+
+	OtherField saveOtherField(OtherField otherField);
+
+	void deleteOtherField(Integer id);
+
+	OtherField getOtherField(Integer id);
+
+	void updateDepartment(String nameField, String typeField, Boolean required,
+			Integer departmentID, Integer id);
+	
+	List<OtherField> getOtherField(String deptName);
+}

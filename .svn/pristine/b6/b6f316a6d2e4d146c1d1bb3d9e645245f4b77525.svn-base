@@ -1,0 +1,254 @@
+package gappp.web.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import gappp.model.Department;
+import gappp.model.OtherField;
+import gappp.model.Program;
+import gappp.model.User;
+import gappp.model.dao.DepartmentDao;
+import gappp.model.dao.OtherFieldDao;
+import gappp.model.dao.ProgramDao;
+import gappp.model.dao.RoleDao;
+import gappp.model.dao.UserDao;
+import gappp.web.validator.LoginValidator;
+import gappp.web.validator.RegisterValidator;
+
+@Controller
+@Scope("session")
+public class UserController {
+
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private RoleDao roleDao;
+    @Autowired
+    private DepartmentDao departmentDao;
+    @Autowired
+    private ProgramDao programDao;
+    @Autowired
+    private OtherFieldDao otherFieldDao;
+    
+    @Autowired
+    private RegisterValidator registerValidator;
+    @Autowired
+    private LoginValidator loginValidator;
+
+    @RequestMapping("/users.html")
+    public String users( ModelMap models )
+    {
+        models.put( "users", userDao.getUsers() );
+        return "users";
+    }
+
+    @RequestMapping(value = "/login.html",method = RequestMethod.GET)
+    public String login(ModelMap models)
+    {
+    	models.put("user", new User());
+        return "login";
+    }
+    
+    @RequestMapping(value = "/login.html",method = RequestMethod.POST)
+    public String login(@ModelAttribute User user,BindingResult result,ModelMap models,HttpServletRequest request)
+    {
+    	loginValidator.validate(user, result);
+    	if(result.hasErrors()) return "login";
+    	
+    	if(user.geteMail() != "" && user.getPassword() != ""){
+    		User users = userDao.getUser(user.geteMail(), user.getPassword());
+    		if(users == null){
+    			models.put("invalid", "Invalid email or password...");
+    			return "login";
+    		}
+    		else{
+    			request.getSession().setAttribute("username",users.getFirstName() + " " + users.getLastName());
+    			request.getSession().setAttribute("role",users.getRole().getRoleName());
+
+    			if(users.getRole().getRoleName().equals("admin")){
+        			return "redirect:adminhome.html";
+        		}else if(users.getRole().getRoleName().equals("staff")){
+        			return "redirect:staffhome.html";
+        		}else {
+        			return "redirect:studenthome.html";
+        		}
+    		}
+    	}else{
+    		return "login";
+    	}
+    }
+    
+    @RequestMapping(value = "/register.html",method = RequestMethod.GET)
+    public String register(ModelMap models)
+    {
+    	models.put("user", new User());
+        return "register";
+    }
+    
+    @RequestMapping(value = "/register.html",method = RequestMethod.POST)
+    public String register(@ModelAttribute User user,BindingResult result)
+    {
+    	registerValidator.validate(user, result);
+    	if(result.hasErrors()) return "register";
+    	
+    	user.setRole(roleDao.getRole("student"));
+    	userDao.saveUser(user);
+        return "redirect:login.html";
+    }
+    
+    @RequestMapping(value = "/staffhome.html",method = RequestMethod.GET)
+    public String staffhome(HttpServletRequest request)
+    {
+    	if(request.getSession().getAttribute("role") != null){
+    		if(!request.getSession().getAttribute("role").equals("student"))
+    			return "redirect:login.html";
+    	}else{
+    		return "redirect:login.html";
+    	}
+        return "staffhome";
+    }
+    
+    @RequestMapping(value = "/studenthome.html",method = RequestMethod.GET)
+    public String studenthome(HttpServletRequest request)
+    {
+    	if(request.getSession().getAttribute("role") != null){
+    		if(!request.getSession().getAttribute("role").equals("student"))
+    			return "redirect:login.html";
+    	}else{
+    		return "redirect:login.html";
+    	}
+        return "studenthome";
+    }
+    
+    @RequestMapping(value = "/adminhome.html",method = RequestMethod.GET)
+    public String adminhome(ModelMap models,HttpServletRequest request)
+    {
+    	if(request.getSession().getAttribute("role") != null){
+    		if(!request.getSession().getAttribute("role").equals("admin"))
+    			return "redirect:login.html";
+    	}else{
+    		return "redirect:login.html";
+    	}
+    	
+    	models.put("department", new Department());
+    	models.put("departments",departmentDao.getDepartment());
+    	models.put("program", new Program());
+    	models.put("programs", programDao.getProgram());
+    	models.put("otherField", new OtherField());
+    	models.put("otherFields", otherFieldDao.getOtherField());
+        return "adminhome";
+    }
+    
+    @RequestMapping(value = "/adminhome.html",method = RequestMethod.POST)
+    public String adminhome(@RequestParam String action,@ModelAttribute Department department,
+    		@ModelAttribute Program program,@ModelAttribute OtherField otherField,BindingResult result,
+    		@RequestParam String prgmdeptname,@RequestParam String otherdeptname)
+    {
+    	if(action.equals("Add Department")){
+    		departmentDao.saveDepartment(department);
+            return "redirect:adminhome.html";
+    	}else if(action.equals("Add Program")){
+    		Department departmentObj = departmentDao.getDepartment(prgmdeptname);
+    		program.setDepartment(departmentObj);
+    		programDao.saveProgram(program);
+            return "redirect:adminhome.html";
+    	}else if(action.equals("Add Additional Requirement")){
+    		Department departmentObj = departmentDao.getDepartment(otherdeptname);
+    		otherField.setDepartment(departmentObj);
+    		otherFieldDao.saveOtherField(otherField);
+            return "redirect:adminhome.html";
+    	}
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/deleteDpt.html")
+    public String deleteDpt(HttpServletRequest request)
+    {
+    	Integer id = Integer.parseInt(request.getQueryString().split("=")[1]);
+    	departmentDao.deleteDepartment(id);
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/deletePrgm.html")
+    public String deletePrgm(HttpServletRequest request)
+    {
+    	Integer id = Integer.parseInt(request.getQueryString().split("=")[1]);
+    	programDao.deleteProgram(id);
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/deleteOther.html")
+    public String deleteOther(HttpServletRequest request)
+    {
+    	Integer id = Integer.parseInt(request.getQueryString().split("=")[1]);
+    	otherFieldDao.deleteOtherField(id);
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/editDpt.html",method = RequestMethod.GET)
+    public String editDpt(HttpServletRequest request,ModelMap models)
+    {
+    	Integer id = Integer.parseInt(request.getQueryString().split("=")[1]);
+    	models.put("id", id);
+    	models.put("departments", departmentDao.getDepartment(id));
+    	return "editDpt";
+    }
+    
+    @RequestMapping(value = "/editDpt.html",method = RequestMethod.POST)
+    public String editDpt(@RequestParam String deptname,@RequestParam String id)
+    {
+    	departmentDao.updateDepartment(deptname, Integer.parseInt(id));
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/editPrgm.html",method = RequestMethod.GET)
+    public String editPrgm(HttpServletRequest request,ModelMap models)
+    {
+    	Integer id = Integer.parseInt(request.getQueryString().split("=")[1]);
+    	models.put("programs", programDao.getProgram(id));
+    	models.put("departments",departmentDao.getDepartment());
+    	return "editPrgm";
+    }
+    
+    @RequestMapping(value = "/editPrgm.html",method = RequestMethod.POST)
+    public String editPrgm(@RequestParam String progName,@RequestParam String id,@RequestParam String prgmdeptname)
+    {
+    	programDao.updateDepartment(progName, departmentDao.getDepartmentID(prgmdeptname), Integer.parseInt(id));
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/editOther.html",method = RequestMethod.GET)
+    public String editOther(HttpServletRequest request,ModelMap models)
+    {
+    	Integer id = Integer.parseInt(request.getQueryString().split("=")[1]);
+    	models.put("others", otherFieldDao.getProgram(id));
+    	models.put("departments",departmentDao.getDepartment());
+    	return "editOther";
+    }
+    
+    @RequestMapping(value = "/editOther.html",method = RequestMethod.POST)
+    public String editOther(@RequestParam String nameField,@RequestParam String typeField
+    	,@RequestParam Boolean required,@RequestParam Integer id,@RequestParam String otherdeptname)
+    {
+    	otherFieldDao.updateDepartment(nameField,typeField,required, departmentDao.getDepartmentID(otherdeptname), id);
+    	return "redirect:adminhome.html";
+    }
+    
+    @RequestMapping(value = "/logout.html",method = RequestMethod.GET)
+    public String editDpt(HttpServletRequest request)
+    {
+    	request.getSession().removeAttribute("username");
+    	request.getSession().removeAttribute("role");
+    	
+    	return "redirect:login.html";
+    }
+}

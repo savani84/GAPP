@@ -1,0 +1,11 @@
+package gappp.model.dao;
+
+import java.util.List;
+
+import gappp.model.Department;
+
+public interface DepartmentDao {
+    
+    List<Department> getDepartment();
+
+}

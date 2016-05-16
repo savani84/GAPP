@@ -1,0 +1,176 @@
+package gappp.model;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "applications")
+public class Application implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	private Integer cin;
+	private String phoneno;
+	@Column(name = "e_mail")
+	private String eMail;
+	private String gender;
+	private String term;
+	@Column(name = "date_of_birth")
+	private Date dob;
+	@Column(name = "citizen_country")
+	private String citizenCountry;
+	private Double tofel;
+	
+	@ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private User users;
+	@ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private Status status;
+	@OneToMany(mappedBy="application",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private List<Comment> comment;
+	@OneToMany(mappedBy="application",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private List<Degree> degree;
+	@ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private Program program;
+	@OneToMany(mappedBy="application",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private List<OtherFieldValue> otherFieldValue;
+	
+	public Application()
+    {
+    }
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getCin() {
+		return cin;
+	}
+
+	public void setCin(Integer cin) {
+		this.cin = cin;
+	}
+
+	public String getPhoneno() {
+		return phoneno;
+	}
+
+	public void setPhoneno(String phoneno) {
+		this.phoneno = phoneno;
+	}
+
+	public String geteMail() {
+		return eMail;
+	}
+
+	public void seteMail(String eMail) {
+		this.eMail = eMail;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getTerm() {
+		return term;
+	}
+
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
+	public Date getDob() {
+		return dob;
+	}
+
+	public void setDob(Date dob) {
+		this.dob = dob;
+	}
+
+	public String getCitizenCountry() {
+		return citizenCountry;
+	}
+
+	public void setCitizenCountry(String citizenCountry) {
+		this.citizenCountry = citizenCountry;
+	}
+
+	public Double getTofel() {
+		return tofel;
+	}
+
+	public void setTofel(Double tofel) {
+		this.tofel = tofel;
+	}
+
+	public User getUsers() {
+		return users;
+	}
+
+	public void setUsers(User users) {
+		this.users = users;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public List<Comment> getComment() {
+		return comment;
+	}
+
+	public void setComment(List<Comment> comment) {
+		this.comment = comment;
+	}
+
+	public List<Degree> getDegree() {
+		return degree;
+	}
+
+	public void setDegree(List<Degree> degree) {
+		this.degree = degree;
+	}
+
+	public Program getProgram() {
+		return program;
+	}
+
+	public void setProgram(Program program) {
+		this.program = program;
+	}
+
+	public List<OtherFieldValue> getOtherFieldValue() {
+		return otherFieldValue;
+	}
+
+	public void setOtherFieldValue(List<OtherFieldValue> otherFieldValue) {
+		this.otherFieldValue = otherFieldValue;
+	}
+	
+	
+}

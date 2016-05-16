@@ -1,0 +1,21 @@
+package gappp.model.dao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import org.testng.annotations.Test;
+
+@Test(groups = "StudentDaoTest")
+@ContextConfiguration(locations = "classpath:applicationContext.xml")
+public class StudentDaoTest extends AbstractTransactionalTestNGSpringContextTests {
+
+    @Autowired
+    StudentDao StudentDao;
+    
+    @Test
+    public void getApplication()
+    {
+       // assert StudentDao.getApplication("student1@localhost.localdomain").size() >= 1;
+    }
+
+}

@@ -1,0 +1,61 @@
+
+    alter table applications 
+        drop constraint FK_78su0wnn02817h354falvtovc;
+
+    alter table applications 
+        drop constraint FK_fvv8mt4q3l0jlgem0374rwfb5;
+
+    alter table applications 
+        drop constraint FK_bmuuaimvfefq39ypbc6y2itdu;
+
+    alter table applications 
+        drop constraint FK_jrun151d6ktjkayjmy7ylvq8v;
+
+    alter table comments 
+        drop constraint FK_e3qchf4nk3j4hankpwu6f4r1b;
+
+    alter table comments 
+        drop constraint FK_ikag7dhf1qd9dftfwl0l2on0m;
+
+    alter table degrees 
+        drop constraint FK_rqi4wrhhtwwk6r9c9hcjyext9;
+
+    alter table others_field 
+        drop constraint FK_taa6m99b8oi1blabti4rdlkq5;
+
+    alter table others_field_value 
+        drop constraint FK_r2rjfwwyvnv50lyioglj6lnf;
+
+    alter table others_field_value 
+        drop constraint FK_e41d3msgkscfhl8vkoj2xmim5;
+
+    alter table programs 
+        drop constraint FK_t38cee5jtiwtw07papp2rjlca;
+
+    alter table users 
+        drop constraint FK_7phkg3qghukhuw9kj3ahkmw;
+
+    alter table users 
+        drop constraint FK_krvotbtiqhudlkamvlpaqus0t;
+
+    drop table if exists app_status cascade;
+
+    drop table if exists applications cascade;
+
+    drop table if exists comments cascade;
+
+    drop table if exists degrees cascade;
+
+    drop table if exists departments cascade;
+
+    drop table if exists others_field cascade;
+
+    drop table if exists others_field_value cascade;
+
+    drop table if exists programs cascade;
+
+    drop table if exists roles cascade;
+
+    drop table if exists users cascade;
+
+    drop sequence hibernate_sequence;
